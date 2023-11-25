@@ -1,17 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HousingLocationComponent } from '../housing-location/housing-location.component';
-import { HousingLocation } from '../housinglocation';
-import { HousingService } from '../housing.service';
+import { PostComponent } from '../post/post.component';
+import { Post } from '../post';
+import { PostService } from '../post.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HousingLocationComponent],
+  imports: [CommonModule, PostComponent],
   template: `
     <section>
       <form>
-        <input type="text" placeholder="Filter by city" #filter />
+        <input type="text" placeholder="Filter by name or description" #filter />
         <button
           class="primary"
           type="button"
@@ -22,40 +22,38 @@ import { HousingService } from '../housing.service';
       </form>
     </section>
     <section class="results">
-      <app-housing-location
-        *ngFor="let housingLocation of filteredLocationList"
-        [housingLocation]="housingLocation"
-      ></app-housing-location>
+      <app-post *ngFor="let post of filteredPostList" [post]="post"> </app-post>
     </section>
   `,
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  housingLocationList: HousingLocation[] = [];
-  housingService: HousingService = inject(HousingService);
-  filteredLocationList: HousingLocation[] = [];
-
-  filterResults(text: string) {
-    if (!text) {
-      this.filteredLocationList = this.housingLocationList;
-      return;
-    }
-
-    this.filteredLocationList = this.housingLocationList.filter(
-      (housingLocation) =>
-        housingLocation?.name.toLowerCase().includes(text.toLowerCase()),
-    );
-  }
+  postList: Post[] = [];
+  filteredPostList: Post[] = [];
+  postService: PostService = inject(PostService);
 
   /**
    *
    */
   constructor() {
-    this.housingService
-      .getAllHousingLocations()
-      .then((housingLocationList: HousingLocation[]) => {
-        this.housingLocationList = housingLocationList;
-        this.filteredLocationList = housingLocationList;
-      });
+    this.postService.getAllPosts().then((postList: Post[]) => {
+      this.postList = postList;
+      this.filteredPostList = postList;
+    });
+  }
+
+  filterResults(text: string) {
+    if (!text) {
+      this.filteredPostList = this.postList;
+      return;
+    }
+
+    text = text.trim().toLowerCase();
+
+    this.filteredPostList = this.postList.filter(
+      (post) =>
+        post?.name.toLowerCase().includes(text) ||
+        post?.description.toLowerCase().includes(text),
+    );
   }
 }

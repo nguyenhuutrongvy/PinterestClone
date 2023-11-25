@@ -1,26 +1,31 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { HousingService } from '../housing.service';
-import { HousingLocation } from '../housinglocation';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { PostService } from '../post.service';
+import { Post } from '../post';
 
 @Component({
   selector: 'app-details',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   template: `
     <article>
       <img
         class="listing-photo"
-        [src]="housingLocation?.image"
-        alt="Exterior photo of {{ housingLocation?.name }}"
+        [src]="post?.image"
+        alt="Exterior photo of {{ post?.name }}"
       />
       <section class="listing-description">
-        <h2 class="listing-heading">{{ housingLocation?.name }}</h2>
-        <p class="listing-location">
-          {{ housingLocation?.description }}
+        <h2 class="listing-heading">{{ post?.name }}</h2>
+        <p class="listing-description">
+          {{ post?.description }}
         </p>
+      </section>
+      <section class="listing-features">
+        <h2 class="section-heading">About this post</h2>
+        <ul>
+          <li>Description: {{ post?.description }}</li>
+        </ul>
       </section>
     </article>
   `,
@@ -28,14 +33,16 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 export class DetailsComponent {
   route: ActivatedRoute = inject(ActivatedRoute);
-  housingService = inject(HousingService);
-  housingLocation: HousingLocation | undefined;
+  postService: PostService = inject(PostService);
+  post: Post | undefined;
 
+  /**
+   *
+   */
   constructor() {
-    this.housingService
-      .getHousingLocationById(this.route.snapshot.params['id'])
-      .then((housingLocation) => {
-        this.housingLocation = housingLocation;
-      });
+    const postId = this.route.snapshot.params['id'];
+    this.postService.getPostById(postId).then((post) => {
+      this.post = post;
+    });
   }
 }
